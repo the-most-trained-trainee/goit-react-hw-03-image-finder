@@ -8,3 +8,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>
 );
+
+
+// pixabay 
+// https://github.com/the-most-trained-trainee/goit-js-hw-11-scroll/blob/main/src/fetchPhotos.js
