@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { App } from 'components/App';
+import App from 'components/App';
 import './index.css';
 import './styles.css';
 
@@ -9,7 +9,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>
 );
-
-
-// pixabay 
-// https://github.com/the-most-trained-trainee/goit-js-hw-11-scroll/blob/main/src/fetchPhotos.js
