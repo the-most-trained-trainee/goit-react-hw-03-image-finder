@@ -1,13 +1,10 @@
 import React from 'react';
 import ImmageGallery from './ImageGallery';
-import Searchbar from './Searchbar/Searchbar';
+import Searchbar from './Searchbar';
 import Button from './Button';
-import { Oval } from 'react-loader-spinner';
+import Loader from './Loader';
 import { animateScroll as scroll } from 'react-scroll';
 import '../styles.css';
-import { ThemeConsumer } from 'styled-components';
-
-// proptypes, реакция на пустой инпут, oval -> Loader
 
 class App extends React.Component {
   state = { search: '', pageNo: 1, gallery: [], isLoading: false };
@@ -15,7 +12,7 @@ class App extends React.Component {
   componentDidUpdate() {
     if (this.state.pageNo > 1) {
       scroll.scrollMore(600);
-    } else if ((this.state.pageNo = 1)) {
+    } else if (this.state.pageNo === 1) {
       scroll.scrollMore(10);
     }
   }
@@ -60,6 +57,17 @@ class App extends React.Component {
     const response = await fetch(new_url);
     const responseDisplay = await response.json();
 
+    if (responseDisplay.totalHits === 0) {
+      this.setState(prevState => {
+        return {
+          isLoading: !prevState.isLoading,
+        };
+      });
+      this.totalHits = 1;
+      alert("Sorry, but no results found :(");
+      return;
+    }
+
     this.totalHits = responseDisplay.totalHits;
 
     this.setState(prevState => {
@@ -76,18 +84,7 @@ class App extends React.Component {
         <Searchbar onSubmit={this.searchSubmit} />
         <ImmageGallery pics={this.state.gallery} />
         <div className="loading">
-          <Oval
-            height={60}
-            width={60}
-            color="#3f51b5"
-            wrapperStyle={{}}
-            wrapperClass=""
-            visible={this.state.isLoading}
-            ariaLabel="oval-loading"
-            secondaryColor="#3f51b5"
-            strokeWidth={2}
-            strokeWidthSecondary={2}
-          />
+          <Loader loading={this.state.isLoading} />
         </div>
         {this.totalHits - this.state.pageNo * 12 > 11 && (
           <Button onClick={this.loadMore} />

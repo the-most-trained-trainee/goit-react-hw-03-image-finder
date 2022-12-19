@@ -1,15 +1,24 @@
 import React from 'react';
 import GalleryItem from './ImageGalleryItem';
+import PropTypes from 'prop-types';
 import { nanoid } from 'nanoid';
 
-const ImmageGallery = props => {
+const ImmageGallery = ({ pics }) => {
   return (
     <ul className="ImageGallery">
-      {props.pics.map(item => (
-        <GalleryItem key={nanoid()} image={item.webformatURL} fullImage={item.largeImageURL} />
+      {pics.map(item => (
+        <GalleryItem
+          key={nanoid()}
+          image={item.webformatURL}
+          fullImage={item.largeImageURL}
+        />
       ))}
     </ul>
   );
+};
+
+ImmageGallery.propTypes = {
+  pics: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default ImmageGallery;

@@ -1,12 +1,23 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class Searchbar extends React.Component {
   state = { searchInput: '' };
+
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
 
   handleChange = e => this.setState({ searchInput: e.currentTarget.value });
 
   handleSubmit = e => {
     e.preventDefault();
+
+    if (this.state.searchInput.trim() === '') {
+      alert('Please enter a valid request!');
+      return;
+    }
+
     this.props.onSubmit(this.state.searchInput);
   };
 
