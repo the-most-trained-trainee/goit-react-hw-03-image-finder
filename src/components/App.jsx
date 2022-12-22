@@ -3,92 +3,89 @@ import ImmageGallery from './ImageGallery';
 import Searchbar from './Searchbar';
 import Button from './Button';
 import Loader from './Loader';
+import getPhotos from './serverRequest';
 import { animateScroll as scroll } from 'react-scroll';
 import '../styles.css';
 
 class App extends React.Component {
   state = { search: '', pageNo: 1, gallery: [], isLoading: false };
 
-  componentDidUpdate() {
+  async componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.state.pageNo > 1) {
       scroll.scrollMore(600);
     } else if (this.state.pageNo === 1) {
       scroll.scrollMore(10);
     }
+    // seacthSubmit
+    if (this.state.search !== prevState.search) {
+      this.setState(prevState => ({
+        isLoading: !prevState.isLoading,
+        pageNo: 1,
+        gallery: [],
+      }));
+      setTimeout(() => {
+        this.getGallery();
+      }, 350);
+    }
+    // loadMore
+    if (this.state.pageNo !== 1 && prevState.pageNo - this.state.pageNo === 1) {
+      this.setState(prev => ({ isLoading: !prev.isLoading }));
+      setTimeout(() => {
+        this.getGallery();
+      }, 350);
+    }
   }
 
-  searchSubmit = request => {
-    this.setState(prevState => ({ isLoading: !prevState.isLoading }));
+  searchSubmit = request => this.setState({ search: request });
 
-    this.setState({ search: request, pageNo: 1, gallery: [] });
-    setTimeout(() => {
-      this.getGallery();
-    }, 50);
-  };
-
-  loadMore = () => {
-    this.setState(prevState => ({ isLoading: !prevState.isLoading }));
-
-    this.setState(prevState => {
-      return { pageNo: (prevState.pageNo += 1) };
-    });
-    setTimeout(() => {
-      this.getGallery();
-    }, 50);
-  };
+  loadMore = () =>
+    this.setState(prevState => ({ pageNo: (prevState.pageNo += 1) }));
 
   totalHits = 1;
 
   getGallery = async () => {
-    const params = {
-      key: '29078045-8c2db167d821a84d590b709ce',
-      image_type: 'photo',
-      orientation: 'horizontal',
-      q: this.state.search,
-      page: this.state.pageNo,
-      per_page: 12,
-    };
+    const { search, pageNo } = this.state;
+    const galleryReceived = await getPhotos(search, pageNo);
 
-    const paramsInclude = new URLSearchParams([
-      ...Object.entries(params),
-    ]).toString();
-
-    const new_url = new URL(`https://pixabay.com/api/?${paramsInclude}`).href;
-    const response = await fetch(new_url);
-    const responseDisplay = await response.json();
-
-    if (responseDisplay.totalHits === 0) {
-      this.setState(prevState => {
-        return {
-          isLoading: !prevState.isLoading,
-        };
-      });
+    if (galleryReceived.totalHits === 0) {
+      this.setState(prev => ({ isLoading: !prev.isLoading }));
       this.totalHits = 1;
-      alert("Sorry, but no results found :(");
+      alert('Sorry, but no results found :(');
       return;
     }
 
-    this.totalHits = responseDisplay.totalHits;
+    this.totalHits = galleryReceived.totalHits;
+
+    const resultingHits = galleryReceived.hits.map(x => ({
+      largeImageURL: x.largeImageURL,
+      id: x.id,
+      webformatURL: x.webformatURL,
+    }));
 
     this.setState(prevState => {
       return {
-        gallery: prevState.gallery.concat(responseDisplay.hits),
+        gallery: prevState.gallery.concat(resultingHits),
         isLoading: !prevState.isLoading,
       };
     });
   };
 
   render() {
+    const { pageNo, gallery, isLoading } = this.state;
+
+    let loaderShown = false;
+    this.totalHits - pageNo * 12 > 11 && !isLoading
+      ? (loaderShown = true)
+      : (loaderShown = false);
+
     return (
       <div className="App">
         <Searchbar onSubmit={this.searchSubmit} />
-        <ImmageGallery pics={this.state.gallery} />
+        {gallery.length > 0 && <ImmageGallery pics={gallery} />}
         <div className="loading">
-          <Loader loading={this.state.isLoading} />
+          <Loader loading={isLoading} />
         </div>
-        {this.totalHits - this.state.pageNo * 12 > 11 && (
-          <Button onClick={this.loadMore} />
-        )}
+        {loaderShown && <Button onClick={this.loadMore} />}
       </div>
     );
   }
