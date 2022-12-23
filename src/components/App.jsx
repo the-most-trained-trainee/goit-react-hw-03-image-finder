@@ -18,29 +18,28 @@ class App extends React.Component {
     }
     // seacthSubmit
     if (this.state.search !== prevState.search) {
-      this.setState(prevState => ({
-        isLoading: !prevState.isLoading,
-        pageNo: 1,
-        gallery: [],
-      }));
-      setTimeout(() => {
-        this.getGallery();
-      }, 350);
+      this.setState(
+        prevState => ({
+          isLoading: !prevState.isLoading,
+          pageNo: 1,
+          gallery: [],
+        }),
+        () => this.getGallery()
+      );
     }
     // loadMore
     if (this.state.pageNo !== 1 && this.state.pageNo - prevState.pageNo === 1) {
-      // if (this.state.pageNo !== 1 && prevState.pageNo - this.state.pageNo === 1) {
-      this.setState(prev => ({ isLoading: !prev.isLoading }));
-      setTimeout(() => {
-        this.getGallery();
-      }, 350);
+      this.setState(
+        prev => ({ isLoading: !prev.isLoading }),
+        () => this.getGallery()
+      );
     }
   }
 
   searchSubmit = request => this.setState({ search: request });
 
   loadMore = () =>
-    this.setState(prevState => ({ pageNo: (prevState.pageNo + 1) }));
+    this.setState(prevState => ({ pageNo: prevState.pageNo + 1 }));
 
   totalHits = 1;
 
