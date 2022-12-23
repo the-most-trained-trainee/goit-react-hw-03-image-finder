@@ -28,7 +28,8 @@ class App extends React.Component {
       }, 350);
     }
     // loadMore
-    if (this.state.pageNo !== 1 && prevState.pageNo - this.state.pageNo === 1) {
+    if (this.state.pageNo !== 1 && this.state.pageNo - prevState.pageNo === 1) {
+      // if (this.state.pageNo !== 1 && prevState.pageNo - this.state.pageNo === 1) {
       this.setState(prev => ({ isLoading: !prev.isLoading }));
       setTimeout(() => {
         this.getGallery();
