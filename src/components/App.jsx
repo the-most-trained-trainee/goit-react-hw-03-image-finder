@@ -40,7 +40,7 @@ class App extends React.Component {
   searchSubmit = request => this.setState({ search: request });
 
   loadMore = () =>
-    this.setState(prevState => ({ pageNo: (prevState.pageNo += 1) }));
+    this.setState(prevState => ({ pageNo: (prevState.pageNo + 1) }));
 
   totalHits = 1;
 
